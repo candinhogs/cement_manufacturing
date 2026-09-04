@@ -13,10 +13,16 @@ def main():
         if option == 1:
             cement.register_new_cement_mix()
         elif option == 2:
-            print("1 - Cálcular Média")
+            print("1 - Cálcular Média.")
+            print("2 - Filtrar por intervalo de resistência.")
+            print("3 - Filtrar por intervalo de idade.")
             option = int(input("Opção: "))
             if option == 1:
                 cement.calculate_average()
+            if option == 2:
+                cement.filter_by_inter_strength()
+            if option == 3:
+                cement.filter_by_inter_age()
         # grothendieck prime!
         elif option == 57:
             cement._debug_print_registers()
