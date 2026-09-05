@@ -8,6 +8,7 @@ def main():
     while option != -1:
         print("1 - Registrar nova mistura.")
         print("2 - Calcular Estátisticas.")
+        print("3 - Classificar baseado em caracteristicas.")
         print("-1 - Sair.")
         option = int(input("Opção: "))
         if option == 1:
@@ -23,9 +24,14 @@ def main():
                 cement.filter_by_inter_strength()
             if option == 3:
                 cement.filter_by_inter_age()
+        elif option == 3:
+            choices = input("Escolha quais colunas para classificar: ").split(" ")
+            cement.classification_by_choice(choices)
         # grothendieck prime!
         elif option == 57:
             cement._debug_print_registers()
+        elif option == 21:
+            cement._debug_insert_registers()
 
 if __name__ == "__main__":
     main()

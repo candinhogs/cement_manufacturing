@@ -1,9 +1,9 @@
 class Cement():
-    def __init__(self, registers: int):
+    def __init__(self, registers: int) -> None:
         self.db = {"cement": [], "slag": [], "ash": [], "water": [], "superplastic": [], "coarseagg": [], "fineagg": [], "age": [], "strength": []}
         self.registers = registers
 
-    def register_new_cement_mix(self):
+    def register_new_cement_mix(self -> None):
         """Register a new element iff there's 'space' for a new element (defined by registers)"""
         value: float = 0
         if len(self.db["cement"]) >= self.registers:
@@ -16,7 +16,7 @@ class Cement():
                     value = float(input(f"Digite o valor para {element}: "))
                 self.db[element].append(value)
 
-    def calculate_average(self):
+    def calculate_average(self) -> None:
         """Calculate the overall average of each element on the analysis"""
         # Get the current length of the database, since we can have a maximum length
         # and a request to calculate the average before we are given all the inputs.
@@ -44,22 +44,31 @@ class Cement():
         print(f"Idade média dos {current_size} registros: {age_average:.4f}")
         print(f"Resistência média dos {current_size} registros: {strength_average:.4f}")
 
-    def filter_by_inter_strength(self):
+    def filter_by_inter_strength(self) -> None:
         low, high = map(float, input("Digite dois valores minimo e máximo para o intervalo: "))
         values = sorted(self.db["strength"])
-        values = list(filter(lambda x: x >= 0 and x <= 1, values))
+        values = list(filter(lambda x: x >= low and x <= high, values))
         print(values)
 
-    def filter_by_inter_age(self):
+    def filter_by_inter_age(self) -> None:
         low, high = map(float, input("Digite dois valores minimo e máximo para o intervalo: "))
         values = sorted(self.db["age"])
         # A função/método filter aplica uma determinada função (geralmente anonima) em torno de um iterable,
         # em particular ela retorna um iterator, que pode ser convertido para uma lista.
-        values = list(filter(lambda x: x >= 0 and x <= 1, values))
+        values = list(filter(lambda x: x >= low and x <= high, values))
         print(values)
 
+    def classification_by_choice(self, choices: list) -> None:
+        averages = self.calculate_average()
+
+        print(f"As seguintes entradas satisfazem a classificação: {results}")
+
     # Método de debug; Remover após finalização
-    def _debug_print_registers(self):
-        for i in self.bd:
-            print(self.bd[i])
-        
+    def _debug_insert_registers(self) -> None:
+        self.db = {"cement": [540,342,276,531,135], "slag": [0,38,116,0,0], "ash": [0,0,90,0,166], "water": [173,228,179,141,180], "superplastic": [0,0,8,28,10], "coarseagg": [1125,670,870,852,961], "fineagg": [225,698,0,141,0], "age": [12,36,25,1,29], "strength": [1,28,9,36,4]}
+
+    # Método de debug; Remover após finalização
+    def _debug_print_registers(self) -> None:
+        for i in self.db:
+            print(self.db[i])
+
