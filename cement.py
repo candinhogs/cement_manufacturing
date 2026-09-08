@@ -3,7 +3,7 @@ class Cement():
         self.db = {"cement": [], "slag": [], "ash": [], "water": [], "superplastic": [], "coarseagg": [], "fineagg": [], "age": [], "strength": []}
         self.registers = registers
 
-    def register_new_cement_mix(self -> None):
+    def register_new_cement_mix(self) -> None:
         """Register a new element iff there's 'space' for a new element (defined by registers)"""
         value: float = 0
         if len(self.db["cement"]) >= self.registers:
@@ -16,7 +16,7 @@ class Cement():
                     value = float(input(f"Digite o valor para {element}: "))
                 self.db[element].append(value)
 
-    def calculate_average(self) -> None:
+    def calculate_average(self) -> dict:
         """Calculate the overall average of each element on the analysis"""
         # Get the current length of the database, since we can have a maximum length
         # and a request to calculate the average before we are given all the inputs.
@@ -33,16 +33,24 @@ class Cement():
         age_average: float = sum(self.db["age"]) / current_size
         strength_average: float = sum(self.db["strength"]) / current_size
 
+        averages = {"cement": cement_average, "slag": slag_average, "ash": ash_average, "water": water_average, "superplastic": superplastic_average, "coarseagg": coarseagg_average, "fineagg": fineagg_average, "age": age_average, "strength": strength_average}
+
         # Print each average to the standard output
-        print(f"Cimento médio dos {current_size} registros: {cement_average:.4f}")
-        print(f"Escória de alto-forno médio dos {current_size} registros: {slag_average:.4f}")
-        print(f"Cinzas volantes médio dos {current_size} registros: {ash_average:.4f}")
-        print(f"Água média dos {current_size} registros: {water_average:.4f}")
-        print(f"Aditivo superplastificante média dos {current_size} registros: {superplastic_average:.4f}")
-        print(f"Agregado graudo média dos {current_size} registros: {coarseagg_average:.4f}")
-        print(f"Agregado fino médio dos {current_size} registros: {fineagg_average:.4f}")
-        print(f"Idade média dos {current_size} registros: {age_average:.4f}")
-        print(f"Resistência média dos {current_size} registros: {strength_average:.4f}")
+        return averages
+
+    def print_averages(self) -> None:
+        averages = self.calculate_average()
+        current_size: int = len(self.db["cement"]) + 1
+
+        print(f"Cimento médio dos {current_size} registros: {averages["cement"]:.4f}")
+        print(f"Escória de alto-forno médio dos {current_size} registros: {averages["slag"]:.4f}")
+        print(f"Cinzas volantes médio dos {current_size} registros: {averages["ash"]:.4f}")
+        print(f"Água média dos {current_size} registros: {averages["water"]:.4f}")
+        print(f"Aditivo superplastificante média dos {current_size} registros: {averages["superplastic"]:.4f}")
+        print(f"Agregado graudo média dos {current_size} registros: {averages["coarseagg"]:.4f}")
+        print(f"Agregado fino médio dos {current_size} registros: {averages["fineagg"]:.4f}")
+        print(f"Idade média dos {current_size} registros: {averages["age"]:.4f}")
+        print(f"Resistência média dos {current_size} registros: {averages["strength"]:.4f}")
 
     def filter_by_inter_strength(self) -> None:
         low, high = map(float, input("Digite dois valores minimo e máximo para o intervalo: "))
@@ -60,8 +68,14 @@ class Cement():
 
     def classification_by_choice(self, choices: list) -> None:
         averages = self.calculate_average()
+        result = []
+        for index in range(0, len(self.db["cement"])):
+            result.append([[index], 0])
+            for choice in choices:
+                if self.db[choice][index] > averages[choice]:
+                    result[index][1] += 1
 
-        print(f"As seguintes entradas satisfazem a classificação: {results}")
+        print(f"As seguintes entradas satisfazem a classificação: {result}")
 
     # Método de debug; Remover após finalização
     def _debug_insert_registers(self) -> None:

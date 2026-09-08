@@ -19,7 +19,7 @@ def main():
             print("3 - Filtrar por intervalo de idade.")
             option = int(input("Opção: "))
             if option == 1:
-                cement.calculate_average()
+                cement.print_averages()
             if option == 2:
                 cement.filter_by_inter_strength()
             if option == 3:
