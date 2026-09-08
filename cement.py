@@ -1,7 +1,7 @@
 class Cement():
     def __init__(self, registers: int) -> None:
-        self.db = {"cement": [], "slag": [], "ash": [], "water": [], "superplastic": [], "coarseagg": [], "fineagg": [], "age": [], "strength": []}
-        self.registers = registers
+        self.db: dict = {"cement": [], "slag": [], "ash": [], "water": [], "superplastic": [], "coarseagg": [], "fineagg": [], "age": [], "strength": []}
+        self.registers: int = registers
 
     def register_new_cement_mix(self) -> None:
         """Register a new element iff there's 'space' for a new element (defined by registers)"""
@@ -39,7 +39,8 @@ class Cement():
         return averages
 
     def print_averages(self) -> None:
-        averages = self.calculate_average()
+        """Helper function to print the averages, call's self.calculate_average()"""
+        averages: dict = self.calculate_average()
         current_size: int = len(self.db["cement"]) + 1
 
         print(f"Cimento médio dos {current_size} registros: {averages["cement"]:.4f}")
@@ -53,29 +54,53 @@ class Cement():
         print(f"Resistência média dos {current_size} registros: {averages["strength"]:.4f}")
 
     def filter_by_inter_strength(self) -> None:
-        low, high = map(float, input("Digite dois valores minimo e máximo para o intervalo: "))
-        values = sorted(self.db["strength"])
-        values = list(filter(lambda x: x >= low and x <= high, values))
+        """Filter by strength from the current input (dict), the values which satisfies the low, high pair"""
+        low, high = map(float, input("Digite dois valores minimo e máximo para o intervalo: ").split())
+        values: list = sorted(self.db["strength"])
+        values: list = list(filter(lambda x: x >= low and x <= high, values))
         print(values)
 
     def filter_by_inter_age(self) -> None:
-        low, high = map(float, input("Digite dois valores minimo e máximo para o intervalo: "))
+        """Filter by age from the current input (dict), the values which satisfies the low, high pair"""
+        low, high = map(float, input("Digite dois valores minimo e máximo para o intervalo: ").split())
         values = sorted(self.db["age"])
         # A função/método filter aplica uma determinada função (geralmente anonima) em torno de um iterable,
         # em particular ela retorna um iterator, que pode ser convertido para uma lista.
         values = list(filter(lambda x: x >= low and x <= high, values))
         print(values)
 
-    def classification_by_choice(self, choices: list) -> None:
+    def classification_by_choice(self, choices: list, by_percentage=False) -> None:
+        """Classifies each mixture based on: average, if by_percentage=True, then calculate the percentage of each compound on the mixture"""
         averages = self.calculate_average()
-        result = []
+        results: list = []
         for index in range(0, len(self.db["cement"])):
-            result.append([[index], 0])
+            results.append([[index], 0])
             for choice in choices:
                 if self.db[choice][index] > averages[choice]:
-                    result[index][1] += 1
+                    results[index][1] += 1
 
-        print(f"As seguintes entradas satisfazem a classificação: {result}")
+        if by_percentage:
+            percentage: float = float(input("Qual porcentagem as escolhas devem satisfazer [0 ~ 100]? "))
+            for index in range(0, len(self.db["cement"])):
+                mixture: list = [] 
+                for choice in choices:
+                    mixture.append(self.db[choice][index])
+                total: float = sum(mixture)
+                for choice in choices:
+                    choice_percentage: float = (self.db[choice][index] * 100) / total
+                    if choice_percentage >= percentage:
+                        results[index][1] += 1
+
+        print("As seguintes entradas satisfazem a classificação.")
+        for result in results:
+            if result[1] > 0 and result[1] <= 5:
+                print(f"Atendimento baixo: {result[0]}")
+            elif result[1] > 5 and result[1] <= 10:
+                print(f"Atendimento intermediario: {result[0]}")
+            elif result[1] > 10 and result[1] <= 15:
+                print(f"Atendimento alto: {result[0]}")
+            else:
+                print("Não categorizado.")
 
     # Método de debug; Remover após finalização
     def _debug_insert_registers(self) -> None:
