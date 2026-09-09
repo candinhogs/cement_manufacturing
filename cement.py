@@ -56,18 +56,36 @@ class Cement():
     def filter_by_inter_strength(self) -> None:
         """Filter by strength from the current input (dict), the values which satisfies the low, high pair"""
         low, high = map(float, input("Digite dois valores minimo e máximo para o intervalo: ").split())
-        values: list = sorted(self.db["strength"])
-        values: list = list(filter(lambda x: x >= low and x <= high, values))
-        print(values)
+        values = sorted(self.db["strength"])
+        idxs: list = []
+        # A função/método filter aplica uma determinada função (geralmente anonima) em torno de um iterable,
+        # em particular ela retorna um iterator, que pode ser convertido para uma lista.
+        values = list(filter(lambda x: x >= low and x <= high, values))
+        for mixture in self.db["strength"]:
+            if mixture in values:
+                idxs.append(self.db["strength"].index(mixture))
+        for i in idxs:
+            print("Registros: [", end=" ")
+            for column in self.db:
+                print(f"{self.db[column][i]},", end=" ")
+            print("]")
 
     def filter_by_inter_age(self) -> None:
         """Filter by age from the current input (dict), the values which satisfies the low, high pair"""
         low, high = map(float, input("Digite dois valores minimo e máximo para o intervalo: ").split())
         values = sorted(self.db["age"])
+        idxs: list = []
         # A função/método filter aplica uma determinada função (geralmente anonima) em torno de um iterable,
         # em particular ela retorna um iterator, que pode ser convertido para uma lista.
         values = list(filter(lambda x: x >= low and x <= high, values))
-        print(values)
+        for mixture in self.db["age"]:
+            if mixture in values:
+                idxs.append(self.db["age"].index(mixture))
+        for i in idxs:
+            print("Registros: [", end=" ")
+            for column in self.db:
+                print(f"{self.db[column][i]},", end=" ")
+            print("]")
 
     def classification_by_choice(self, choices: list, by_percentage=False) -> None:
         """Classifies each mixture based on: average, if by_percentage=True, then calculate the percentage of each compound on the mixture"""

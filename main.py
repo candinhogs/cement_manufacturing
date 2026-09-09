@@ -25,7 +25,7 @@ def main():
             if option == 3:
                 cement.filter_by_inter_age()
         elif option == 3:
-            by_percentage = bool(input("Deseja classificar por porcentagem (0 = Não, 1 = Sim)? "))
+            by_percentage = bool(int(input("Deseja classificar por porcentagem (0 = Não, 1 = Sim)? ")))
             choices = input("Escolha quais colunas para classificar: ").split(" ")
             cement.classification_by_choice(choices, by_percentage)
         # grothendieck prime!
