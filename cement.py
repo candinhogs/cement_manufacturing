@@ -73,28 +73,18 @@ class Cement():
         """Classifies each mixture based on: average, if by_percentage=True, then calculate the percentage of each compound on the mixture"""
         averages = self.calculate_average()
         results: list = []
-        for index in range(0, len(self.db["cement"])):
-            results.append([[index], 0])
-            for choice in choices:
-                if self.db[choice][index] > averages[choice]:
-                    results[index][1] += 1
-
         if by_percentage:
             percentage: float = float(input("Qual porcentagem as escolhas devem satisfazer [0 ~ 100]? "))
-            for index in range(0, len(self.db["cement"])):
-                mixture: list = [] 
-                for choice in choices:
-                    mixture.append(self.db[choice][index])
-                total: float = sum(mixture)
-                for choice in choices:
-                    choice_percentage: float = (self.db[choice][index] * 100) / total
-                    if choice_percentage >= percentage:
-                        results[index][1] += 1
+
+        for index in range(0, len(self.db["cement"])):
+            mixture: list = []
+            if self.db[choice][index] > averages[choice]:
+                results[index][1] += 1
 
         print("As seguintes entradas satisfazem a classificação.")
         for result in results:
             if result[1] > 0 and result[1] <= 5:
-                print(f"Atendimento baixo: {result[0]}")
+                print(f"Atendimento baixo: {result[0:2]}")
             elif result[1] > 5 and result[1] <= 10:
                 print(f"Atendimento intermediario: {result[0]}")
             elif result[1] > 10 and result[1] <= 15:
