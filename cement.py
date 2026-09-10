@@ -73,21 +73,20 @@ class Cement():
         for i, strength in enumerate(self.db["strength"]):
             if low <= strength <= high:
                 print("Registros: [", end=" ")
-                for column in self.db:
+                for column in self.db.keys():
                     print(f"{self.db[column][i]},", end=" ")
-                    print("]")
+                print("]")
 
     def filter_by_inter_age(self) -> None:
         """Filter by age from the current input (dict), the values which satisfies the low, high pair"""
         low, high = map(float, input("Digite dois valores minimo e máximo para o intervalo: ").split())
 
         for i, age in enumerate(self.db["age"]):
-            if low <= strength <= high:
+            if low <= age <= high:
                 print("Registros: [", end=" ")
                 for column in self.db:
                     print(f"{self.db[column][i]},", end=" ")
-                    print("]")
-
+                print("]")
         
     def classification_by_choice(self, choices: list, by_age: bool, by_ash: bool, by_water: bool) -> None:
         """Classifies each mixture based on: average, if by_percentage=True, then calculate the percentage of each compound on the mixture"""
@@ -119,11 +118,11 @@ class Cement():
 
         print("As seguintes entradas satisfazem a classificação.")
         for result in results:
-            if result[1] > 0 and result[1] <= 2:
+            if result[1] > 0 and result[1] <= 10:
                 print(f"Atendimento baixo: {result[0]}")
-            elif result[1] > 2 and result[1] <= 4:
+            elif result[1] > 10 and result[1] <= 20:
                 print(f"Atendimento intermediario: {result[0]}")
-            elif result[1] > 4 and result[1] <= 6:
+            elif result[1] > 20:
                 print(f"Atendimento alto: {result[0]}")
             else:
                 print("Não categorizado.")
