@@ -9,6 +9,7 @@ def main():
         print("1 - Registrar nova mistura.")
         print("2 - Calcular Estátisticas.")
         print("3 - Classificar baseado em caracteristicas.")
+        print("4 - Mostrar registros cadastrados")
         print("-1 - Sair.")
         option = int(input("Opção: "))
         if option == 1:
@@ -25,9 +26,13 @@ def main():
             if option == 3:
                 cement.filter_by_inter_age()
         elif option == 3:
-            by_percentage = bool(int(input("Deseja classificar por porcentagem (0 = Não, 1 = Sim)? ")))
             choices = input("Escolha quais colunas para classificar: ").split(" ")
-            cement.classification_by_choice(choices, by_percentage)
+            by_age = bool(int(input("Deseja classificar por idade? (0 = Não, 1 = Sim) ")))
+            by_ash = bool(int(input("Deseja classificar por cinzas? (0 = Não, 1 = Sim) ")))
+            by_water = bool(int(input("Deseja classificar por água? (0 = Não, 1 = Sim) ")))
+            cement.classification_by_choice(choices, by_age, by_ash, by_water)
+        elif option == 4:
+            cement.print_mixtures()
         # grothendieck prime!
         elif option == 57:
             cement._debug_print_registers()
@@ -36,3 +41,4 @@ def main():
 
 if __name__ == "__main__":
     main()
+
