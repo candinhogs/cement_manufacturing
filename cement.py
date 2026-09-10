@@ -9,7 +9,7 @@ class Cement():
             print(f"Indice = {index} Valores = [ ", end="")
             for column in columns:
                 print(f"{self.db[column][index]} ", end="")
-                print("]")
+            print("]")
 
     def register_new_cement_mix(self) -> None:
         """Register a new element iff there's 'space' for a new element (defined by registers)"""
