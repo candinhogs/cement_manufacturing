@@ -1,9 +1,15 @@
-class Cement():
-    def __init__(self, registers: int) -> None:
-        self.db: dict = {"cement": [], "slag": [], "ash": [], "water": [], "superplastic": [], "coarseagg": [], "fineagg": [], "age": [], "strength": []}
-        self.registers: int = registers
+import pandas as pd
 
+class Concrete():
+    def __init__(self, registers: int, file_path: str) -> None:
+        try:
+            self.db = pd.read_csv(file_path, nrows=registers)
+        except FileNotFoundError:
+            print("Arquivo não encontrado, iniciando um banco de dados vazio.")
+            self.db = pd.DataFrame({"cement": [], "slag": [], "ash": [], "water": [], "superplastic": [], "coarseagg": [], "fineagg": [], "age": [], "strength": []})
+            
     def print_mixtures(self) -> None:
+        """Print to stdout every mixture of concrete, not fancy."""
         columns = self.db.keys()
         for index in range(len(self.db["cement"])):
             print(f"Indice = {index} Valores = [ ", end="")
@@ -14,15 +20,12 @@ class Cement():
     def register_new_cement_mix(self) -> None:
         """Register a new element iff there's 'space' for a new element (defined by registers)"""
         value: float = 0
-        if len(self.db["cement"]) >= self.registers:
-            print("Quantidade máxima de registros alcançada.\nNão é possível registrar uma nova mistura.")
-        else:
-            for element in self.db:
+        for element in self.db:
+            value = float(input(f"Digite o valor para {element}: "))
+            while value < 0:
+                print("Valor digitado inválido; Apenas entradas maiores ou iguais a zero são válidas.")
                 value = float(input(f"Digite o valor para {element}: "))
-                while value < 0:
-                    print("Valor digitado inválido; Apenas entradas maiores ou iguais a zero são válidas.")
-                    value = float(input(f"Digite o valor para {element}: "))
-                    self.db[element].append(value)
+                self.db[element].append(value)
 
     def calculate_average(self) -> dict:
         """Calculate the overall average of each element on the analysis"""
