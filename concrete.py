@@ -4,19 +4,24 @@ class Concrete():
     def __init__(self, registers: int, file_path: str) -> None:
         try:
             self.db = pd.read_csv(file_path, nrows=registers)
+            pd.set_option("display.max_rows", registers)
         except FileNotFoundError:
             print("Arquivo não encontrado, iniciando um banco de dados vazio.")
             self.db = pd.DataFrame({"cement": [], "slag": [], "ash": [], "water": [], "superplastic": [], "coarseagg": [], "fineagg": [], "age": [], "strength": []})
             
     def print_mixtures(self) -> None:
         """Print to stdout every mixture of concrete, not fancy."""
-        columns = self.db.keys()
-        for index in range(len(self.db["cement"])):
-            print(f"Indice = {index} Valores = [ ", end="")
-            for column in columns:
-                print(f"{self.db[column][index]} ", end="")
-            print("]")
+        print(self.db.loc[:,:])
 
+    def print_by_range(self) -> None:
+        """Given a range [a,b] print all rows in that range"""
+        try:
+            low = int(input("Digite o indece da primeira linha: "))
+            high = int(input("Digite o indece da última linha: "))
+        except ValueError:
+            raise ValueError("Por favor, digite um número inteiro para o indíce")
+        print(self.db.loc[low:high,:])
+        
     def register_new_cement_mix(self) -> None:
         """Register a new element iff there's 'space' for a new element (defined by registers)"""
         value: float = 0
