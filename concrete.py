@@ -56,6 +56,18 @@ class Concrete():
 
         return averages
 
+    def show_mean_min_max(self, column: str) -> dict:
+        """Given a column, show the mean, min and max; Returns a dict with each value"""
+        values_mean_min_max: dict = {"mean": None, "min": None, "max": None}
+        values_mean_min_max["mean"] = self.db[column].mean()
+        values_mean_min_max["min"] = self.db[column].min()
+        values_mean_min_max["max"] = self.db[column].max()
+        print(f"Para {column} são:")
+        print(f"Média: {values_mean_min_max['mean']}")
+        print(f"Mínimo: {values_mean_min_max['min']}")
+        print(f"Máximo: {values_mean_min_max['max']}")
+        return values_mean_min_max
+        
     def print_averages(self) -> None:
         """Helper function to print the averages, call's self.calculate_average()"""
         averages: dict = self.calculate_average()

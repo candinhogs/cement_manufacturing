@@ -12,6 +12,7 @@ def main():
     concrete = Concrete(registers, file_path)
     
     while option != -1:
+        print("-"*10)
         print("1 - Registrar nova mistura.")
         print("2 - Calcular Estátisticas.")
         print("3 - Classificar baseado em caracteristicas.")
@@ -21,10 +22,11 @@ def main():
         if option == 1:
             concrete.register_new_cement_mix()
         elif option == 2:
-            print("-"*100)
+            print("-"*10)
             print("1 - Cálcular Média.")
             print("2 - Filtrar por intervalo de resistência.")
             print("3 - Filtrar por intervalo de idade.")
+            print("4 - Média, mínimo e máximo de uma componente.")
             option = int(input("Opção: "))
             if option == 1:
                 concrete.print_averages()
@@ -32,15 +34,18 @@ def main():
                 concrete.filter_by_inter_strength()
             if option == 3:
                 concrete.filter_by_inter_age()
+            if option == 4:
+                column: str = input("Qual componente deseja observar: ")
+                concrete.show_mean_min_max(column)
         elif option == 3:
-            print("-"*100)
+            print("-"*10)
             choices = input("Escolha quais colunas para classificar: ").split(" ")
             by_age = bool(int(input("Deseja classificar por idade? (0 = Não, 1 = Sim) ")))
             by_ash = bool(int(input("Deseja classificar por cinzas? (0 = Não, 1 = Sim) ")))
             by_water = bool(int(input("Deseja classificar por água? (0 = Não, 1 = Sim) ")))
             concrete.classification_by_choice(choices, by_age, by_ash, by_water)
         elif option == 4:
-            print("-"*100)
+            print("-"*10)
             print("1 - Todas as entradas.")
             print("2 - Entradas por intervalo.")
             option = int(input("Opção: "))
