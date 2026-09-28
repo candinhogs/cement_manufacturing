@@ -14,7 +14,7 @@ def main():
     while option != -1:
         print("-"*10)
         print("1 - Registrar nova mistura.")
-        print("2 - Calcular Estátisticas.")
+        print("2 - Calcular estátisticas.")
         print("3 - Classificar baseado em caracteristicas.")
         print("4 - Mostrar registros cadastrados")
         print("-1 - Sair.")
@@ -23,7 +23,7 @@ def main():
             concrete.register_new_cement_mix()
         elif option == 2:
             print("-"*10)
-            print("1 - Cálcular Média.")
+            print("1 - Cálcular média geral.")
             print("2 - Filtrar por intervalo de resistência.")
             print("3 - Filtrar por intervalo de idade.")
             print("4 - Média, mínimo e máximo de uma componente.")

@@ -8,6 +8,7 @@ class Concrete():
         except FileNotFoundError:
             print("Arquivo não encontrado, iniciando um banco de dados vazio.")
             self.db = pd.DataFrame({"cement": [], "slag": [], "ash": [], "water": [], "superplastic": [], "coarseagg": [], "fineagg": [], "age": [], "strength": []})
+            self.size = len(db)
             
     def print_mixtures(self) -> None:
         """Print to stdout every mixture of concrete, not fancy."""
@@ -31,14 +32,11 @@ class Concrete():
                 print("Valor digitado inválido; Apenas entradas maiores ou iguais a zero são válidas.")
                 value = float(input(f"Digite o valor para {element}: "))
                 self.db[element].append(value)
+                self.size = len(db)
 
     def calculate_average(self) -> dict:
         """Calculate the overall average of each element on the analysis"""
-        # Get the current length of the database, since we can have a maximum length
-        # and a request to calculate the average before we are given all the inputs.
-        current_size: int = len(self.db["cement"])
-
-        if current_size == 0:
+        if self.size == 0:
             averages = {"cement": None, "slag": None, "ash": None, "water": None, "superplastic": None, "coarseagg": None, "fineagg": None, "age": None, "strength": None}
         else:
             # Calculate all the averages
@@ -67,24 +65,23 @@ class Concrete():
         print(f"Mínimo: {values_mean_min_max['min']}")
         print(f"Máximo: {values_mean_min_max['max']}")
         return values_mean_min_max
-        
+    
     def print_averages(self) -> None:
         """Helper function to print the averages, call's self.calculate_average()"""
         averages: dict = self.calculate_average()
-        current_size: int = len(self.db["cement"])
-
+        
         if averages["cement"] == None:
             print("Não há registros para calcular a média")
         else:
-            print(f"Cimento médio dos {current_size} registros: {averages["cement"]:.4f}")
-            print(f"Escória de alto-forno médio dos {current_size} registros: {averages["slag"]:.4f}")
-            print(f"Cinzas volantes médio dos {current_size} registros: {averages["ash"]:.4f}")
-            print(f"Água média dos {current_size} registros: {averages["water"]:.4f}")
-            print(f"Aditivo superplastificante média dos {current_size} registros: {averages["superplastic"]:.4f}")
-            print(f"Agregado graudo média dos {current_size} registros: {averages["coarseagg"]:.4f}")
-            print(f"Agregado fino médio dos {current_size} registros: {averages["fineagg"]:.4f}")
-            print(f"Idade média dos {current_size} registros: {averages["age"]:.4f}")
-            print(f"Resistência média dos {current_size} registros: {averages["strength"]:.4f}")
+            print(f"Cimento médio dos {self.size} registros: {averages["cement"]:.4f}")
+            print(f"Escória de alto-forno médio dos {self.size} registros: {averages["slag"]:.4f}")
+            print(f"Cinzas volantes médio dos {self.size} registros: {averages["ash"]:.4f}")
+            print(f"Água média dos {self.size} registros: {averages["water"]:.4f}")
+            print(f"Aditivo superplastificante média dos {self.size} registros: {averages["superplastic"]:.4f}")
+            print(f"Agregado graudo média dos {self.size} registros: {averages["coarseagg"]:.4f}")
+            print(f"Agregado fino médio dos {self.size} registros: {averages["fineagg"]:.4f}")
+            print(f"Idade média dos {self.size} registros: {averages["age"]:.4f}")
+            print(f"Resistência média dos {self.size} registros: {averages["strength"]:.4f}")
 
     def filter_by_inter_strength(self) -> None:
         """Filter by strength from the current input (dict), the values which satisfies the low, high pair"""
@@ -95,7 +92,7 @@ class Concrete():
                 print("Registros: [", end=" ")
                 for column in self.db.keys():
                     print(f"{self.db[column][i]},", end=" ")
-                print("]")
+                    print("]")
 
     def filter_by_inter_age(self) -> None:
         """Filter by age from the current input (dict), the values which satisfies the low, high pair"""
@@ -106,8 +103,8 @@ class Concrete():
                 print("Registros: [", end=" ")
                 for column in self.db:
                     print(f"{self.db[column][i]},", end=" ")
-                print("]")
-        
+                    print("]")
+                    
     def classification_by_choice(self, choices: list, by_age: bool, by_ash: bool, by_water: bool) -> None:
         """Classifies each mixture based on: average, if by_percentage=True, then calculate the percentage of each compound on the mixture"""
         averages = self.calculate_average()
@@ -136,21 +133,21 @@ class Concrete():
                 if self.db["water"][index] < water:
                     results[index][1] += 1
 
-        print("As seguintes entradas satisfazem a classificação.")
-        for result in results:
-            if result[1] > 0 and result[1] <= 10:
-                print(f"Atendimento baixo: {result[0]}")
-            elif result[1] > 10 and result[1] <= 20:
-                print(f"Atendimento intermediario: {result[0]}")
-            elif result[1] > 20:
-                print(f"Atendimento alto: {result[0]}")
-            else:
-                print("Não categorizado.")
-
+        print("As seguintes entradas satisfazem a classificação de acordo com os críterios.")
+        low_result: list = [x[0] for x in results if x[1] > 0 and x[1] <= 10]
+        medium_result: list = [x[0] for x in results if x[1] > 10 and x[1] <= 20]
+        high_result: list = [x[0] for x in results if x[1] > 20]
+        nc_result: list = [x[0] for x in results if x[1] == 0]
+        print(f"Indices de baixo atendimento: {low_result}")
+        print(f"Indices de médio atendimento: {medium_result}")
+        print(f"Indices de alto atendimento: {high_result}")
+        print(f"Indices não classificados: {nc_result}")
+        
     # Método de debug; Remover após finalização
     def _debug_insert_registers(self) -> None:
         self.db = {"cement": [540,342,276,531,135], "slag": [0,38,116,0,0], "ash": [0,0,90,0,166], "water": [173,228,179,141,180], "superplastic": [0,0,8,28,10], "coarseagg": [1125,670,870,852,961], "fineagg": [225,698,0,141,0], "age": [12,36,25,1,29], "strength": [1,28,9,36,4]}
-
+        self.size = len(db)
+        
     # Método de debug; Remover após finalização
     def _debug_print_registers(self) -> None:
         for i in self.db:
