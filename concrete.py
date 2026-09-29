@@ -54,6 +54,29 @@ class Concrete():
 
         return averages
 
+    def calculate_row_percent(self, index: int) -> dict:
+        """Calculate the percent of each element"""
+        total = sum(self.db.iloc[index])
+        element_percent = {
+            "cement": (self.db.iloc[index]["cement"] * 100) / total,
+            "slag": (self.db.iloc[index]["slag"] * 100) / total,
+            "ash": (self.db.iloc[index]["ash"] * 100) / total,
+            "water": (self.db.iloc[index]["water"] * 100) / total,
+            "superplastic": (self.db.iloc[index]["superplastic"] * 100) / total,
+            "coarseagg": (self.db.iloc[index]["coarseagg"] * 100) / total,
+            "fineagg": (self.db.iloc[index]["fineagg"] * 100) / total,
+            "age": (self.db.iloc[index]["age"] * 100) / total,
+            "strength": (self.db.iloc[index]["strength"] * 100) / total
+        }
+        return element_percent
+
+    def show_percent_of_element_by_row(self) -> None:
+        """Helper method, print's a given row percentage of each element"""
+        index: int = int(input("Digite qual indíce deseja visualizar a porcentagem de cada elemento: "))
+        element_percentage: dict = self.calculate_row_percent(index)
+        for column in element_percentage.keys():
+            print(f"A porcentagem de {column} na mistura é: {element_percentage[column]:.2f}%")
+    
     def show_mean_min_max(self, column: str) -> dict:
         """Given a column, show the mean, min and max; Returns a dict with each value"""
         values_mean_min_max: dict = {"mean": None, "min": None, "max": None}
@@ -67,7 +90,7 @@ class Concrete():
         return values_mean_min_max
     
     def print_averages(self) -> None:
-        """Helper function to print the averages, call's self.calculate_average()"""
+        """Helper method to print the averages, call's self.calculate_average()"""
         averages: dict = self.calculate_average()
         
         if averages["cement"] == None:

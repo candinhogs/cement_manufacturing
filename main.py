@@ -48,11 +48,14 @@ def main():
             print("-"*10)
             print("1 - Todas as entradas.")
             print("2 - Entradas por intervalo.")
+            print("3 - Mostrar porcentagem de cada elemento em um registro.")
             option = int(input("Opção: "))
             if option == 1:
                 concrete.print_mixtures()
             elif option == 2:
                 concrete.print_by_range()
+            elif option == 3:
+                concrete.show_percent_of_element_by_row()
         # grothendieck prime!
         elif option == 57:
             concrete._debug_print_registers()
