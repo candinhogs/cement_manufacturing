@@ -35,7 +35,7 @@ def main():
             if option == 3:
                 concrete.filter_by_inter_age()
             if option == 4:
-                column: str = input("Qual componente deseja observar: ")
+                column: str = input("Qual componente (coluna) deseja observar: ")
                 concrete.show_mean_min_max(column)
         elif option == 3:
             print("-"*10)
@@ -49,6 +49,7 @@ def main():
             print("1 - Todas as entradas.")
             print("2 - Entradas por intervalo.")
             print("3 - Mostrar porcentagem de cada elemento em um registro.")
+            print("4 - Mostrar ordernador por uma (ou mais) coluna(s).")
             option = int(input("Opção: "))
             if option == 1:
                 concrete.print_mixtures()
@@ -56,6 +57,9 @@ def main():
                 concrete.print_by_range()
             elif option == 3:
                 concrete.show_percent_of_element_by_row()
+            elif option == 4:
+                columns = input("Deseja ordenar por quais colunas? ").split(" ")
+                concrete.sort_by_values(columns);
         # grothendieck prime!
         elif option == 57:
             concrete._debug_print_registers()

@@ -85,15 +85,19 @@ class Concrete():
             print(f"A porcentagem de {column} na mistura é: {element_percentage[column]:.2f}%")
     
     def show_mean_min_max(self, column: str) -> dict:
-        """Given a column, show the mean, min and max; Returns a dict with each value"""
+        """Given a column, show the mean, min and max; Returns a dict with each value; If column isn't find return None"""
         values_mean_min_max: dict = {"mean": None, "min": None, "max": None}
-        values_mean_min_max["mean"] = self.db[column].mean()
-        values_mean_min_max["min"] = self.db[column].min()
-        values_mean_min_max["max"] = self.db[column].max()
-        print(f"Para {column} são:")
-        print(f"Média: {values_mean_min_max['mean']}")
-        print(f"Mínimo: {values_mean_min_max['min']}")
-        print(f"Máximo: {values_mean_min_max['max']}")
+        if column.isalpha() and column in self.db:
+            values_mean_min_max["mean"] = self.db[column].mean()
+            values_mean_min_max["min"] = self.db[column].min()
+            values_mean_min_max["max"] = self.db[column].max()
+            print(f"Para {column} são:")
+            print(f"Média: {values_mean_min_max['mean']}")
+            print(f"Mínimo: {values_mean_min_max['min']}")
+            print(f"Máximo: {values_mean_min_max['max']}")
+        else:
+            print("Coluna não encontrada") 
+            values_mean_min_max: dict = {"mean": None, "min": None, "max": None}
         return values_mean_min_max
     
     def print_averages(self) -> None:
@@ -125,6 +129,8 @@ class Concrete():
                     print(f"{self.db[column][i]}", end=" ")
                 print("]")
 
+    def sort_by_values(self, columns: list) -> None:
+        print(self.db.sort_values(columns))
                     
     def filter_by_inter_age(self) -> None:
         """Filter by age from the current input (dict), the values which satisfies the low, high pair"""
