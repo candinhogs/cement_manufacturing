@@ -16,7 +16,8 @@ def main():
         print("1 - Registrar nova mistura.")
         print("2 - Calcular estátisticas.")
         print("3 - Classificar baseado em caracteristicas.")
-        print("4 - Mostrar registros cadastrados")
+        print("4 - Mostrar registros cadastrados.")
+        print("5 - Gerar relatório.")
         print("-1 - Sair.")
         option = int(input("Opção: "))
         if option == 1:
@@ -59,7 +60,9 @@ def main():
                 concrete.show_percent_of_element_by_row()
             elif option == 4:
                 columns = input("Deseja ordenar por quais colunas? ").split(" ")
-                concrete.sort_by_values(columns);
+                concrete.sort_by_values(columns)
+        elif option == 5:
+            concrete.generate_summary()
         # grothendieck prime!
         elif option == 57:
             concrete._debug_print_registers()

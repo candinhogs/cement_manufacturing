@@ -84,7 +84,7 @@ class Concrete():
         for column in element_percentage.keys():
             print(f"A porcentagem de {column} na mistura é: {element_percentage[column]:.2f}%")
     
-    def show_mean_min_max(self, column: str) -> dict:
+    def show_mean_min_max(self, column: str, summary: bool=False) -> dict:
         """Given a column, show the mean, min and max; Returns a dict with each value; If column isn't find return None"""
         values_mean_min_max: dict = {"mean": None, "min": None, "max": None}
         if column.isalpha() and column in self.db:
@@ -95,6 +95,8 @@ class Concrete():
             print(f"Média: {values_mean_min_max['mean']}")
             print(f"Mínimo: {values_mean_min_max['min']}")
             print(f"Máximo: {values_mean_min_max['max']}")
+            if summary:
+                return f"Para {column}: Média {values_mean_min_max['mean']} Mínimo: {values_mean_min_max['min']} Máximo: {values_mean_min_max['max']}\n"
         else:
             print("Coluna não encontrada") 
             values_mean_min_max: dict = {"mean": None, "min": None, "max": None}
@@ -173,14 +175,25 @@ class Concrete():
                     results[index][1] += 1
 
         print("As seguintes entradas satisfazem a classificação de acordo com os críterios.")
-        low_result: list = [x[0] for x in results if x[1] > 0 and x[1] <= 10]
-        medium_result: list = [x[0] for x in results if x[1] > 10 and x[1] <= 20]
-        high_result: list = [x[0] for x in results if x[1] > 20]
+        low_result: list = [x[0] for x in results if x[1] > 0 and x[1] <= 15]
+        medium_result: list = [x[0] for x in results if x[1] > 15 and x[1] <= 25]
+        high_result: list = [x[0] for x in results if x[1] > 25]
         nc_result: list = [x[0] for x in results if x[1] == 0]
         print(f"Indices de baixo atendimento: {low_result}")
         print(f"Indices de médio atendimento: {medium_result}")
         print(f"Indices de alto atendimento: {high_result}")
         print(f"Indices não classificados: {nc_result}")
+        return f"\nIndices de baixo atendimento: {low_result}\nIndices de médio atendimento: {medium_result}\nIndices de alto atendimento: {high_result} indices não classificados: {nc_result}\n"
+
+    def generate_summary(self):
+        print("-"*5, "Gerando relatório", "-"*5)
+        with open("relatorio.txt", "w") as file:
+            # Escreve no relatório todas as médias, minimos e máximos das colunas;
+            for column in self.db:
+                file.write(self.show_mean_min_max(column, summary=True))
+            # Escreve o resultado da classificação;
+            file.write(self.classification_by_choice(list(self.db.keys()), by_age=True, by_ash=True, by_water=True))
+        print("Relatório gerado e salvo em relatorio.txt")
         
     # Método de debug; Remover após finalização
     def _debug_insert_registers(self) -> None:
