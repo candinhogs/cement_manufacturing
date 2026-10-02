@@ -2,6 +2,7 @@ import pandas as pd
 
 class Concrete():
     def __init__(self, registers: int, file_path: str) -> None:
+
         try:
             self.db = pd.read_csv(file_path, nrows=registers)
             pd.set_option("display.max_rows", registers)
@@ -25,16 +26,21 @@ class Concrete():
         print(self.db.loc[low:high,:])
         
     def register_new_cement_mix(self) -> None:
-        """Register a new element iff there's 'space' for a new element (defined by registers)"""
-        value: float = 0
-        for element in self.db:
-            value = float(input(f"Digite o valor para {element}: "))
-            while value < 0:
-                print("Valor digitado inválido; Apenas entradas maiores ou iguais a zero são válidas.")
-                value = float(input(f"Digite o valor para {element}: "))
-                self.db[element].append(value)
-                self.size = len(db)
-
+        """Register a new cement mix."""
+        mix: dict = {}
+        for element in self.db.columns:
+            value = input(f"Digite o valor para {element}: ")
+            while not value.isdigit():
+                print(f"Digite um valor númerico para registro de {element}")
+                value = input(f"Digite o valor para {element}: ")
+            mix[element] = float(value)
+        self.db = pd.concat(
+            [self.db, pd.DataFrame([mix])],
+            ignore_index=True
+        )
+        self.size = len(self.db)
+        pd.set_option("display.max_rows", self.size)
+        
     def calculate_average(self) -> dict:
         """Calculate the overall average of each element on the analysis"""
         if self.size == 0:
