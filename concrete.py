@@ -8,7 +8,8 @@ class Concrete():
         except FileNotFoundError:
             print("Arquivo não encontrado, iniciando um banco de dados vazio.")
             self.db = pd.DataFrame({"cement": [], "slag": [], "ash": [], "water": [], "superplastic": [], "coarseagg": [], "fineagg": [], "age": [], "strength": []})
-            self.size = len(db)
+
+        self.size = len(self.db)
             
     def print_mixtures(self) -> None:
         """Print to stdout every mixture of concrete, not fancy."""
@@ -40,15 +41,15 @@ class Concrete():
             averages = {"cement": None, "slag": None, "ash": None, "water": None, "superplastic": None, "coarseagg": None, "fineagg": None, "age": None, "strength": None}
         else:
             # Calculate all the averages
-            cement_average: float = sum(self.db["cement"]) / current_size
-            slag_average: float = sum(self.db["slag"]) / current_size
-            ash_average: float = sum(self.db["ash"]) / current_size
-            water_average: float = sum(self.db["water"]) / current_size
-            superplastic_average: float = sum(self.db["superplastic"]) / current_size
-            coarseagg_average: float = sum(self.db["coarseagg"]) / current_size
-            fineagg_average: float = sum(self.db["fineagg"]) / current_size
-            age_average: float = sum(self.db["age"]) / current_size
-            strength_average: float = sum(self.db["strength"]) / current_size
+            cement_average: float = sum(self.db["cement"]) / self.size
+            slag_average: float = sum(self.db["slag"]) / self.size
+            ash_average: float = sum(self.db["ash"]) / self.size
+            water_average: float = sum(self.db["water"]) / self.size
+            superplastic_average: float = sum(self.db["superplastic"]) / self.size
+            coarseagg_average: float = sum(self.db["coarseagg"]) / self.size
+            fineagg_average: float = sum(self.db["fineagg"]) / self.size
+            age_average: float = sum(self.db["age"]) / self.size
+            strength_average: float = sum(self.db["strength"]) / self.size
 
             averages = {"cement": cement_average, "slag": slag_average, "ash": ash_average, "water": water_average, "superplastic": superplastic_average, "coarseagg": coarseagg_average, "fineagg": fineagg_average, "age": age_average, "strength": strength_average}
 
@@ -111,22 +112,25 @@ class Concrete():
         low, high = map(float, input("Digite dois valores minimo e máximo para o intervalo: ").split())
 
         for i, strength in enumerate(self.db["strength"]):
+            print(f"Indice: {i}: ", end="")
             if low <= strength <= high:
-                print("Registros: [", end=" ")
+                print("[", end=" ")
                 for column in self.db.keys():
-                    print(f"{self.db[column][i]},", end=" ")
-                    print("]")
+                    print(f"{self.db[column][i]}", end=" ")
+                print("]")
 
+                    
     def filter_by_inter_age(self) -> None:
         """Filter by age from the current input (dict), the values which satisfies the low, high pair"""
         low, high = map(float, input("Digite dois valores minimo e máximo para o intervalo: ").split())
 
         for i, age in enumerate(self.db["age"]):
+            print(f"Indice: {i}: ", end="")
             if low <= age <= high:
-                print("Registros: [", end=" ")
+                print("[", end=" ")
                 for column in self.db:
-                    print(f"{self.db[column][i]},", end=" ")
-                    print("]")
+                    print(f"{self.db[column][i]}", end=" ")
+                print("]")
                     
     def classification_by_choice(self, choices: list, by_age: bool, by_ash: bool, by_water: bool) -> None:
         """Classifies each mixture based on: average, if by_percentage=True, then calculate the percentage of each compound on the mixture"""
