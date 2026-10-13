@@ -11,9 +11,9 @@ class Concrete():
             self.db = pd.DataFrame({"cement": [], "slag": [], "ash": [], "water": [], "superplastic": [], "coarseagg": [], "fineagg": [], "age": [], "strength": []})
 
         self.size = len(self.db)
-            
+
     def print_mixtures(self) -> None:
-        """Print to stdout every mixture of concrete, not fancy."""
+        """Print to stdout every mixture of concrete."""
         print(self.db.loc[:,:])
 
     def print_by_range(self) -> None:
@@ -24,7 +24,7 @@ class Concrete():
         except ValueError:
             raise ValueError("Por favor, digite um número inteiro para o indíce")
         print(self.db.loc[low:high,:])
-        
+
     def register_new_cement_mix(self) -> None:
         """Register a new cement mix."""
         mix: dict = {}
@@ -40,7 +40,7 @@ class Concrete():
         )
         self.size = len(self.db)
         pd.set_option("display.max_rows", self.size)
-        
+
     def calculate_average(self) -> dict:
         """Calculate the overall average of each element on the analysis"""
         if self.size == 0:
@@ -83,7 +83,7 @@ class Concrete():
         element_percentage: dict = self.calculate_row_percent(index)
         for column in element_percentage.keys():
             print(f"A porcentagem de {column} na mistura é: {element_percentage[column]:.2f}%")
-    
+
     def show_mean_min_max(self, column: str, summary: bool=False) -> dict:
         """Given a column, show the mean, min and max; Returns a dict with each value; If column isn't find return None"""
         values_mean_min_max: dict = {"mean": None, "min": None, "max": None}
@@ -98,14 +98,14 @@ class Concrete():
             if summary:
                 return f"Para {column}: Média {values_mean_min_max['mean']} Mínimo: {values_mean_min_max['min']} Máximo: {values_mean_min_max['max']}\n"
         else:
-            print("Coluna não encontrada") 
+            print("Coluna não encontrada")
             values_mean_min_max: dict = {"mean": None, "min": None, "max": None}
         return values_mean_min_max
-    
+
     def print_averages(self) -> None:
         """Helper method to print the averages, call's self.calculate_average()"""
         averages: dict = self.calculate_average()
-        
+
         if averages["cement"] == None:
             print("Não há registros para calcular a média")
         else:
@@ -133,7 +133,7 @@ class Concrete():
 
     def sort_by_values(self, columns: list) -> None:
         print(self.db.sort_values(columns))
-                    
+
     def filter_by_inter_age(self) -> None:
         """Filter by age from the current input (dict), the values which satisfies the low, high pair"""
         low, high = map(float, input("Digite dois valores minimo e máximo para o intervalo: ").split())
@@ -145,7 +145,7 @@ class Concrete():
                 for column in self.db:
                     print(f"{self.db[column][i]}", end=" ")
                 print("]")
-                    
+
     def classification_by_choice(self, choices: list, by_age: bool, by_ash: bool, by_water: bool) -> None:
         """Classifies each mixture based on: average, if by_percentage=True, then calculate the percentage of each compound on the mixture"""
         averages = self.calculate_average()
@@ -161,7 +161,7 @@ class Concrete():
             ash: float = float(input("Qual a quantidade de cinzas máxima? "))
         if by_water:
             water: float = float(input("Qual a quantidade máxima de água? "))
-            
+
         for index in range(0, len(self.db["cement"])):
             results.append([index, 0])
             for choice in choices:
@@ -194,12 +194,12 @@ class Concrete():
             # Escreve o resultado da classificação;
             file.write(self.classification_by_choice(list(self.db.keys()), by_age=True, by_ash=True, by_water=True))
         print("Relatório gerado e salvo em relatorio.txt")
-        
+
     # Método de debug; Remover após finalização
     def _debug_insert_registers(self) -> None:
         self.db = {"cement": [540,342,276,531,135], "slag": [0,38,116,0,0], "ash": [0,0,90,0,166], "water": [173,228,179,141,180], "superplastic": [0,0,8,28,10], "coarseagg": [1125,670,870,852,961], "fineagg": [225,698,0,141,0], "age": [12,36,25,1,29], "strength": [1,28,9,36,4]}
         self.size = len(db)
-        
+
     # Método de debug; Remover após finalização
     def _debug_print_registers(self) -> None:
         for i in self.db:
