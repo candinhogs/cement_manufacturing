@@ -2,7 +2,6 @@ import pandas as pd
 
 class Concrete():
     def __init__(self, registers: int, file_path: str) -> None:
-
         try:
             self.db = pd.read_csv(file_path, nrows=registers)
             pd.set_option("display.max_rows", registers)
@@ -109,15 +108,15 @@ class Concrete():
         if averages["cement"] == None:
             print("Não há registros para calcular a média")
         else:
-            print(f"Cimento médio dos {self.size} registros: {averages["cement"]:.4f}")
-            print(f"Escória de alto-forno médio dos {self.size} registros: {averages["slag"]:.4f}")
-            print(f"Cinzas volantes médio dos {self.size} registros: {averages["ash"]:.4f}")
-            print(f"Água média dos {self.size} registros: {averages["water"]:.4f}")
-            print(f"Aditivo superplastificante média dos {self.size} registros: {averages["superplastic"]:.4f}")
-            print(f"Agregado graudo média dos {self.size} registros: {averages["coarseagg"]:.4f}")
-            print(f"Agregado fino médio dos {self.size} registros: {averages["fineagg"]:.4f}")
-            print(f"Idade média dos {self.size} registros: {averages["age"]:.4f}")
-            print(f"Resistência média dos {self.size} registros: {averages["strength"]:.4f}")
+            print(f"Cimento médio dos {self.size} registros: {averages['cement']:.4f}")
+            print(f"Escória de alto-forno médio dos {self.size} registros: {averages['slag']:.4f}")
+            print(f"Cinzas volantes médio dos {self.size} registros: {averages['ash']:.4f}")
+            print(f"Água média dos {self.size} registros: {averages['water']:.4f}")
+            print(f"Aditivo superplastificante média dos {self.size} registros: {averages['superplastic']:.4f}")
+            print(f"Agregado graudo média dos {self.size} registros: {averages['coarseagg']:.4f}")
+            print(f"Agregado fino médio dos {self.size} registros: {averages['fineagg']:.4f}")
+            print(f"Idade média dos {self.size} registros: {averages['age']:.4f}")
+            print(f"Resistência média dos {self.size} registros: {averages['strength']:.4f}")
 
     def filter_by_inter_strength(self) -> None:
         """Filter by strength from the current input (dict), the values which satisfies the low, high pair"""
