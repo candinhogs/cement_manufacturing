@@ -1,4 +1,6 @@
 import pandas as pd
+import numpy as np
+from datetime import datetime
 
 class Concrete():
     def __init__(self, registers: int, file_path: str) -> None:
@@ -32,13 +34,13 @@ class Concrete():
             while not value.isdigit():
                 print(f"Digite um valor númerico para registro de {element}")
                 value = input(f"Digite o valor para {element}: ")
-            mix[element] = float(value)
-        self.db = pd.concat(
-            [self.db, pd.DataFrame([mix])],
-            ignore_index=True
-        )
-        self.size = len(self.db)
-        pd.set_option("display.max_rows", self.size)
+                mix[element] = float(value)
+                self.db = pd.concat(
+                    [self.db, pd.DataFrame([mix])],
+                    ignore_index=True
+                )
+                self.size = len(self.db)
+                pd.set_option("display.max_rows", self.size)
 
     def calculate_average(self) -> dict:
         """Calculate the overall average of each element on the analysis"""
@@ -128,7 +130,7 @@ class Concrete():
                 print("[", end=" ")
                 for column in self.db.keys():
                     print(f"{self.db[column][i]}", end=" ")
-                print("]")
+                    print("]")
 
     def sort_by_values(self, columns: list) -> None:
         print(self.db.sort_values(columns))
@@ -143,7 +145,7 @@ class Concrete():
                 print("[", end=" ")
                 for column in self.db:
                     print(f"{self.db[column][i]}", end=" ")
-                print("]")
+                    print("]")
 
     def classification_by_choice(self, choices: list, by_age: bool, by_ash: bool, by_water: bool) -> None:
         """Classifies each mixture based on: average, if by_percentage=True, then calculate the percentage of each compound on the mixture"""
@@ -184,22 +186,197 @@ class Concrete():
         print(f"Indices não classificados: {nc_result}")
         return f"\nIndices de baixo atendimento: {low_result}\nIndices de médio atendimento: {medium_result}\nIndices de alto atendimento: {high_result} indices não classificados: {nc_result}\n"
 
-    def generate_summary(self):
-        print("-"*5, "Gerando relatório", "-"*5)
-        with open("relatorio.txt", "w") as file:
-            # Escreve no relatório todas as médias, minimos e máximos das colunas;
-            for column in self.db:
-                file.write(self.show_mean_min_max(column, summary=True))
-            # Escreve o resultado da classificação;
-            file.write(self.classification_by_choice(list(self.db.keys()), by_age=True, by_ash=True, by_water=True))
-        print("Relatório gerado e salvo em relatorio.txt")
+    def _summary_section(self, title: str) -> str:
+        """Return a formatted section header for the report."""
+        return f"\n{'=' * 70}\n{title}\n{'=' * 70}\n"
 
-    # Método de debug; Remover após finalização
-    def _debug_insert_registers(self) -> None:
-        self.db = {"cement": [540,342,276,531,135], "slag": [0,38,116,0,0], "ash": [0,0,90,0,166], "water": [173,228,179,141,180], "superplastic": [0,0,8,28,10], "coarseagg": [1125,670,870,852,961], "fineagg": [225,698,0,141,0], "age": [12,36,25,1,29], "strength": [1,28,9,36,4]}
-        self.size = len(db)
+    def _summary_fmt_df(self, df, precision: int = 4) -> str:
+        """Return a DataFrame as a rounded string, safe against empty/None."""
+        if df is None or (hasattr(df, "empty") and df.empty):
+            return "  (no data)\n"
+        return df.round(precision).to_string() + "\n"
 
-    # Método de debug; Remover após finalização
-    def _debug_print_registers(self) -> None:
-        for i in self.db:
-            print(self.db[i])
+    def _summary_valid_mask(self):
+        """Return a boolean mask: True for rows with no NaN and no negative numeric values."""
+        numeric = self.db.select_dtypes(include="number")
+        if numeric.empty:
+            return pd.Series([True] * len(self.db), index=self.db.index)
+        no_nan = ~numeric.isna().any(axis=1)
+        no_neg = (numeric >= 0).all(axis=1)
+        return no_nan & no_neg
+
+    def _summary_bins(self, column: str, bins: list, labels: list):
+        """Cut a column into labeled bins and count occurrences per bin."""
+        if column not in self.db.columns or self.db.empty:
+            return pd.Series(dtype=int)
+        cut = pd.cut(self.db[column], bins=bins, labels=labels, include_lowest=True)
+        return cut.value_counts().sort_index()
+
+    def _summary_group_means(self, column: str, bins: list, labels: list):
+        """Group numeric columns by bins of `column` and return the mean per group."""
+        numeric = self.db.select_dtypes(include="number")
+        if column not in numeric.columns or numeric.empty:
+            return pd.DataFrame()
+        cut = pd.cut(numeric[column], bins=bins, labels=labels, include_lowest=True)
+        return numeric.groupby(cut, observed=False).mean()
+
+    def _summary_apply_filters(self, filters: list):
+        """Apply a list of (column, low, high) filters, returning the filtered DataFrame."""
+        df = self.db.copy()
+        applied = []
+        for col, lo, hi in filters or []:
+            if col not in df.columns:
+                continue
+            if lo > hi:
+                lo, hi = hi, lo
+                df = df[(df[col] >= lo) & (df[col] <= hi)]
+                applied.append(f"{col} in [{lo}, {hi}]")
+                df.attrs["applied"] = applied
+        return df
+
+    def _summary_rules_classification(self, rules: dict = None,
+                                      by_age: float = None,
+                                      by_ash: float = None,
+                                      by_water: float = None,
+                                      low_max: int = 2,
+                                      med_max: int = 4) -> dict:
+        """Classify each row by rules, without input(); returns dict of index lists per class."""
+        rules = rules or {}
+        scores: list = []
+        for i in range(len(self.db)):
+            score = 0
+            for col, limit in rules.items():
+                if col in self.db.columns and self.db[col].iloc[i] > limit:
+                    score += 1
+            if by_age is not None and "age" in self.db.columns and self.db["age"].iloc[i] < by_age:
+                score += 1
+            if by_ash is not None and "ash" in self.db.columns and self.db["ash"].iloc[i] < by_ash:
+                score += 1
+            if by_water is not None and "water" in self.db.columns and self.db["water"].iloc[i] < by_water:
+                score += 1
+                scores.append((i, score))
+        return {
+            "low":            [i for i, s in scores if 0 < s <= low_max],
+            "medium":         [i for i, s in scores if low_max < s <= med_max],
+            "high":           [i for i, s in scores if s > med_max],
+            "not classified": [i for i, s in scores if s == 0],
+        }
+
+    def generate_summary(self, output_path: str = "relatorio.txt", filters: list = None, rules: dict = None, rules_by_age: float = None, rules_by_ash: float = None, rules_by_water: float = None, age_bins: list = None, age_labels: list = None, strength_bins: list = None, strength_labels: list = None, cement_bins: list = None, cement_labels: list = None) -> None:
+        """Generate the full text report covering every required item and write it to output_path."""
+        age_bins = age_bins or [0, 7, 28, 90, 180, np.inf]
+        age_labels = age_labels or ["0-7d", "8-28d", "29-90d", "91-180d", ">180d"]
+        strength_bins = strength_bins or [0, 20, 35, 50, np.inf]
+        strength_labels = strength_labels or ["<20 MPa", "20-35 MPa", "35-50 MPa", ">50 MPa"]
+        cement_bins = cement_bins or [0, 200, 300, 400, np.inf]
+        cement_labels = cement_labels or ["<200", "200-300", "300-400", ">400"]
+
+        print("-" * 5, "Gerando relatório", "-" * 5)
+        with open(output_path, "w", encoding="utf-8") as file:
+            file.write("RELATÓRIO DE ANÁLISE DE CONCRETO\n")
+            file.write(f"Gerado em: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}\n")
+            file.write(f"Total de registros no banco: {self.size}\n")
+
+            file.write(self._summary_section("QUANTIDADE TOTAL DE REGISTROS"))
+            file.write(f"  Total: {len(self.db)}\n")
+
+            file.write(self._summary_section("REGISTROS VÁLIDOS x INVÁLIDOS"))
+            valid_mask = self._summary_valid_mask()
+            n_valid = int(valid_mask.sum())
+            n_invalid = int((~valid_mask).sum())
+            file.write(f"  Válidos:   {n_valid}\n")
+            file.write(f"  Inválidos: {n_invalid}\n")
+            if n_invalid:
+                file.write(f"  Índices inválidos: {list(self.db.index[~valid_mask])}\n")
+
+            file.write(self._summary_section("MÉDIAS DAS VARIÁVEIS NUMÉRICAS"))
+            numeric = self.db.select_dtypes(include="number")
+            if numeric.empty:
+                file.write("  (sem colunas numéricas)\n")
+            else:
+                for col, val in numeric.mean().items():
+                    file.write(f"  {col:<15}: {val:.4f}\n")
+
+            file.write(self._summary_section("MÍNIMO E MÁXIMO POR INDICADOR"))
+            if numeric.empty:
+                file.write("  (sem colunas numéricas)\n")
+            else:
+                min_max = pd.DataFrame({"min": numeric.min(), "max": numeric.max()})
+                file.write(self._summary_fmt_df(min_max))
+
+            file.write(self._summary_section("DISTRIBUIÇÃO POR FAIXAS DE IDADE"))
+            dist_age = self._summary_bins("age", age_bins, age_labels)
+            file.write(self._summary_fmt_df(dist_age.to_frame("count")))
+
+            file.write(self._summary_section("DISTRIBUIÇÃO POR FAIXAS DE RESISTÊNCIA"))
+            dist_strength = self._summary_bins("strength", strength_bins, strength_labels)
+            file.write(self._summary_fmt_df(dist_strength.to_frame("count")))
+
+            file.write(self._summary_section("MÉDIAS AGRUPADAS POR FAIXA DE IDADE"))
+            file.write(self._summary_fmt_df(
+                self._summary_group_means("age", age_bins, age_labels)
+            ))
+
+            file.write(self._summary_section("MÉDIAS AGRUPADAS POR FAIXA DE CIMENTO"))
+            file.write(self._summary_fmt_df(
+                self._summary_group_means("cement", cement_bins, cement_labels)
+            ))
+
+            file.write(self._summary_section("RANKING POR STRENGTH (top 10 / bottom 10)"))
+            if "strength" in self.db.columns and not self.db.empty:
+                ranked = self.db.sort_values("strength", ascending=False)
+                file.write("  TOP 10 (maior strength):\n")
+                file.write(self._summary_fmt_df(ranked.head(10)))
+                file.write("  BOTTOM 10 (menor strength):\n")
+                file.write(self._summary_fmt_df(ranked.tail(10)))
+            else:
+                file.write("  (coluna 'strength' ausente)\n")
+
+            file.write(self._summary_section("RESULTADOS DOS FILTROS"))
+            if not filters:
+                file.write("  (nenhum filtro informado)\n")
+            else:
+                filtered = self._summary_apply_filters(filters)
+                file.write(f"  Filtros aplicados: {filtered.attrs.get('applied', [])}\n")
+                file.write(f"  Registros resultantes: {len(filtered)}\n")
+                file.write(self._summary_fmt_df(filtered))
+
+            file.write(self._summary_section("DADOS AUSENTES POR COLUNA"))
+            missing = self.db.isna().sum()
+            pct = (missing / max(len(self.db), 1)) * 100
+            missing_df = pd.DataFrame({"ausentes": missing, "%": pct})
+            file.write(self._summary_fmt_df(missing_df, precision=2))
+
+            file.write(self._summary_section("COMPARAÇÃO DESCRITIVA ENTRE GRUPOS (por faixa de idade)"))
+            if "age" not in self.db.columns or numeric.empty:
+                file.write("  (coluna 'age' ausente ou sem colunas numéricas)\n")
+            else:
+                cut = pd.cut(self.db["age"], bins=age_bins, labels=age_labels, include_lowest=True)
+                key_cols = [c for c in ["cement", "water", "strength"] if c in numeric.columns]
+                if key_cols:
+                    grouped = self.db.groupby(cut, observed=False)[key_cols].agg(
+                        ["count", "mean", "std", "min", "max"]
+                    )
+                    file.write(self._summary_fmt_df(grouped))
+                else:
+                    file.write("  (sem colunas-chave para comparar)\n")
+
+            file.write(self._summary_section("CLASSIFICAÇÃO BASEADA EM REGRAS"))
+            classification = self._summary_rules_classification(
+                rules=rules,
+                by_age=rules_by_age,
+                by_ash=rules_by_ash,
+                by_water=rules_by_water,
+            )
+
+            file.write(f"  Critérios 'maior que': {rules or {}}\n")
+            file.write(f"  Limites 'menor que': idade={rules_by_age}, "
+                       f"cinzas={rules_by_ash}, água={rules_by_water}\n")
+
+            for cls, indexes in classification.items():
+                file.write(f"  {cls:<18}: {indexes}\n")
+
+            file.write(self._summary_section("ARQUIVO GERADO"))
+            file.write(f"  Relatório salvo em: {output_path}\n")
+
+        print(f"Relatório gerado e salvo em {output_path}")
