@@ -30,17 +30,24 @@ class Concrete():
         """Register a new cement mix."""
         mix: dict = {}
         for element in self.db.columns:
-            value = input(f"Digite o valor para {element}: ")
-            while not value.isdigit():
-                print(f"Digite um valor númerico para registro de {element}")
-                value = input(f"Digite o valor para {element}: ")
-                mix[element] = float(value)
-                self.db = pd.concat(
-                    [self.db, pd.DataFrame([mix])],
-                    ignore_index=True
-                )
-                self.size = len(self.db)
-                pd.set_option("display.max_rows", self.size)
+            trying_input = True
+            while trying_input:
+                try:
+                    value = float(input(f"Digite o valor para {element}: "))
+                    mix[element] = value
+                    # Além da verificação de trying_input para validar que foi dado um número,
+                    # verificamos que o valor é de fato >= 0 antes de sair do laço while
+                    if value >= 0:
+                        trying_input = False
+                except ValueError:
+                    print(f"Digite um valor numérico para registro de {element}")
+                    value = input(f"Digite o valor para {element}: ")
+        self.db = pd.concat(
+            [self.db, pd.DataFrame([mix])],
+            ignore_index=True
+        )
+        self.size = len(self.db)
+        pd.set_option("display.max_rows", self.size)
 
     def calculate_average(self) -> dict:
         """Calculate the overall average of each element on the analysis"""
